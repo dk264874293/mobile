@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,use-scalable=no">
+		<title></title>
+		<style>
+			body,html{
+				margin: 0;
+				height: 100%;
+				position: relative;
+				overflow: hidden;
+			}
+			#view{
+				height: 100%;
+				position: relative;
+				overflow: hidden;
+				perspective: 300px;
+			}
+			#box{
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 1024px;
+				height: 768px;
+				margin: -384px 0 0 -512px;
+				transform-style: preserve-3d;
+			}
+			#box div{
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				background: center center no-repeat;
+				background-size: cover;
+			}
+			#box div:nth-child(1){
+				background-image: url(img/img.jpg);
+				transform: translateZ(-512px);
+			}
+			#box div:nth-child(2){
+				background-image: url(img/img2.jpg);
+				transform: rotateY(90deg) translateZ(-512px);
+			}
+			#box div:nth-child(3){
+				background-image: url(img/img3.jpg);
+				transform: rotateY(180deg) translateZ(-512px);
+			}
+			#box div:nth-child(4){
+				background-image: url(img/img4.jpg);
+				transform: rotateY(270deg) translateZ(-512px);
+			}
+			#box div:nth-child(5){
+				background-image: url(img/img2.jpg);
+				transform: rotateX(90deg) translateZ(-512px);
+			}
+			#box div:nth-child(6){
+				background-image: url(img/img.jpg);
+				transform: rotateX(270deg) translateZ(-512px);
+			}
+		</style>
+	</head>
+	<body>
+		<div id="view">
+			<div id="box">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+		</div>
+		<script src="m.Tween.js"></script>
+		<script>
+			(function(){
+				window.onload = function(){
+					var box = document.getElementById('box');
+					var diss = box.getElementsByTagName('div');
+					
+					css( box , 'translateZ' , -2000 )
+					css( box , 'rotateX' , 30 )
+				}
+			})()
+		</script>
+	</body>
+</html>

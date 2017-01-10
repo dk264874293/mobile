@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,user-scalable=no" />
+<title>Document</title>
+<style type="text/css">
+body {
+	margin: 0;	
+}
+body,
+html {
+	height: 100%;
+	overflow: hidden;
+	position: relative;
+}
+header {
+	height: 40px;
+	font-size: 20px;
+	color: #fff;
+	text-align: center;
+	background: #000;
+	line-height: 40px;
+}
+footer {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 40px;
+	color: #fff;
+	text-align: center;
+	background: #000;
+	line-height: 40px;
+}
+#wrap {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 40px;
+	bottom: 40px;
+	overflow: hidden;
+}
+#list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	min-height: 100%;
+}
+#list li {
+	line-height: 30px;
+	text-indent: 20px;
+	font-size: 16px;
+	border-bottom: 1px solid #000;
+}
+</style>
+<script type="text/javascript" src="m.Tween.js"></script>
+<script type="text/javascript">
+	function createList(){
+		var list = document.querySelector('#list');
+		var inner = '';
+		for( var i = 0 ; i < 100 ; i++ ){
+			inner += '<li>这里是' + ( i + 1 ) + '个li</li>';
+		}
+		list.innerHTML = inner;
+	}
+	
+	window.onload = function(){
+		createList();
+		var wrap = document.querySelector('#wrap');
+		mobileScroll({//去除自带滚动条样式，模拟滚动条，上下滑动添加缓冲效果
+			el:wrap,
+			offBar:false
+		})
+		function mobileScroll(init){
+			var wrap = init.el;
+			var list = wrap.children[0];
+			var translateY = 0 ;
+			var maxTranslate = wrap.clientHeight - list.offsetHeight;
+			var lastY = 0;
+			var lastDis = 0;
+			var lastTime = 0;
+			var lastTimeDis = 0;
+			var scrollBar = document.createElement('div');
+			var scale = wrap.clientHeight / list.clientHeight;
+			if( !init.offBar){//判断是否显示滚动条
+				scrollBar.style.cssText = 'width: 4px;position: absolute;top: 0;right: 0;background-color: rgba(0,0,0,0.5);opacity: 0;transition: 0.5s;'
+				css( scrollBar , 'height' , scale * wrap.clientHeight );
+				wrap.appendChild(scrollBar);
+			}
+			document.addEventListener('touchstart',function(e){//去除默认事件(双击屏幕放大事件)IOS10
+				e.preventDefault();
+			});
+			css(wrap,'translateZ',0.01)//启动3D加速
+			list.addEventListener('touchstart',function(e){//触摸开始
+				scrollBar.style.opacity = 1;
+				maxTranslate = wrap.clientHeight - list.offsetHeight;
+				startPoint = e.changedTouches[0].pageY;
+				lastTime = new Date().getTime();
+				startEl = css( list , 'translateY');
+				lastY = startEl;
+				clearInterval(list.timer);
+				lastDis = lastTimeDis = 0;
+			});
+			list.addEventListener('touchmove',function(e){//触摸移动
+				var nowTime = new Date().getTime();
+				var nowPoint = e.changedTouches[0].pageY;
+				var dis =  nowPoint - startPoint;
+				translateY = startEl + dis ;
+				lastTimeDis = nowTime - lastTime;
+				lastTime = nowTime;
+				css( list , 'translateY' , translateY);
+				css( scrollBar, 'translateY',- translateY * scale )
+				lastDis =  translateY -  lastY ;
+				lastY = translateY;
+			});
+			list.addEventListener('touchend',function(e){//触摸结束
+				var type = "easeOut";
+				var speed = Math.round(lastDis / lastTimeDis * 10 );
+				speed = isNaN(speed) ? 0 : speed;
+				var target = (translateY + speed*30 );
+				if(target > 0){
+					target = 0;
+					type = "backOut";
+				}else if( target < maxTranslate){
+					target = maxTranslate;
+					type = "backOut";
+				}
+				MTween({//调用缓冲动画
+					el : list ,
+					target: {
+						translateY:target
+					},
+					time: Math.round(Math.abs(target - translateY) *1.8) ,
+					type: type,
+					callIn:function(){
+						var translateY = css(list,"translateY");
+						css( scrollBar, 'translateY', - translateY * scale )
+					},
+					callBack:function(){
+						scrollBar.style.opacity = 0;
+					}
+				})
+			})
+		}
+	}
+</script>
+</head>
+<body>
+<header id="header">移动端滚动条模拟</header>
+<section id="wrap">
+	<ul id="list">
+		
+	</ul>
+</section>
+<footer id="footer">移动端滚动条模拟</footer>	
+</body>
+</html>
