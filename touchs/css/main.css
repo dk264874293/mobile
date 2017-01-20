@@ -1,0 +1,16 @@
+#box{
+  width: 200px;
+  height: 200px;
+  background: url('../img/1.jpg');
+  color: #fff;
+  font-size: 30px;
+}
+#touchmove{
+  width: 100%;
+  height: 50px;
+  background:red;
+  color: #fff;
+  text-align: center;
+  line-height: 50px;
+  font-size: 20px
+}

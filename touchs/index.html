@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width,user-scalable=no">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+    <div id="box">
+
+    </div>
+    <div id="touchmove"></div>
+    <script src="js/m.Tween.js"></script>
+    <script type="text/javascript">
+        window.onload = function() {
+            document.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+            })
+            var box = document.getElementById('box');
+            var touchmove = document.getElementById('touchmove');
+            /* 当手指触摸元素，当前屏幕上有两根或者两根以上的手指执行 */
+            //gesture 相关的事件，只有IOS下有，安卓没有这个事件
+            // box.addEventlistener('gesturestart',function(e){
+            //   this.style.background = 'blue';
+            // })
+            /*手指位置发生变化时执行*/
+            // box.addEventlist('gesturechange',function(e){
+            //   //e.scale; change时两根手指之间德距离和start时两根手指之间德比值-缩放比
+            //   //e.rotaion; 旋转差 ：change时两根手指形成德直线和start时两根手指形成的直线，中间形成夹角
+            // })
+            /*小于2个手指或者手指离开时触发*/
+            // box.addEventlist('gestureend',function(e){
+            //
+            // })
+            var startRotate = 0;
+            var startScale = 0;
+            css(box,'translateZ',0.01);
+            setGesTure({
+                el: box,
+                start: function(e) {
+                  startRotate = css(this,'rotate');
+                  startScale = css(this,'scale')/100;
+                },
+                change:function(e){
+                  css(this,'rotate', startRotate + e.rotation );
+                  css(this,'scale', (startScale * e.scale)*100);
+                  touchmove.innerHTML = startScale +':'+  e.scale;
+                },
+                end:function(e){
+                  //this.style/background='red';
+                }
+            })
+        }
+        /*
+          init:{
+            el:element//元素,(必填)
+            start:fn//gesturestart的操作
+            change:fn//gesturechange的操作
+            end:fn//gestureend的操作
+          }
+        */
+
+        function getDis(point1,point2){
+          //  touchmove.innerHTML = point2.x +':'+point1.y;
+          var x = point2.x - point1.x;
+          var y = point2.y - point1.y;
+
+          return Math.sqrt(x*x + y*y);
+        }
+        function getDeg(point1,point2){
+          var x = point2.x - point1.x;
+          var y = point2.y - point1.y;
+
+          return Math.atan2(y,x)*180/Math.PI;
+        }
+        function setGesTure(init) {
+            var el = init.el;
+            var isGestrue = false;
+            var startPoint = [];
+            if (!el) {
+                return;
+            }
+            el.addEventListener('touchstart',function(e){
+              if (e.touches.length >= 2) {
+                isGestrue = true;//记录触发多指事件
+                startPoint[0] = { x : e.touches[0].pageX , y:e.touches[0].pageY };
+                startPoint[1] = { x : e.touches[1].pageX , y:e.touches[1].pageY };
+                init.start&&init.start.call(el,e);
+              }
+            })
+            el.addEventListener('touchmove',function(e){
+              if(isGestrue && e.touches.length >= 2){
+                var nowPoint = [];
+                nowPoint[0] = { x:e.touches[0].pageX , y:e.touches[0].pageY };
+                nowPoint[1] = { x:e.touches[1].pageX , y:e.touches[1].pageY };
+                var startDis = getDis(startPoint[0],startPoint[1]);
+                var nowDis = getDis(nowPoint[0],nowPoint[1]);
+                var startDeg = getDeg(startPoint[0],startPoint[1]);
+                var nowDeg = getDeg(nowPoint[0],nowPoint[1]);
+                e.scale = nowDis / startDis;
+                e.rotation = nowDeg - startDeg;
+                init.change && init.change.call(el,e);
+              }
+            })
+            el.addEventListener('touchend',function(e){
+              if (isGestrue) {
+                if( e.touches.length < 2 || e.targetTouches.length < 1 ){
+                  isGestrue = false;
+                  init.end && init.end.call(el.e);
+                }
+              }
+            })
+        }
+
+    </script>
+</body>
+
+</html>
